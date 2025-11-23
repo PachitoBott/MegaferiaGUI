@@ -3,6 +3,10 @@ package core.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import core.model.Book;
+import core.model.Manager;
+import core.model.Publisher;
+
 /**
  * Representa un stand en la feria.
  */
@@ -46,7 +50,14 @@ public class Stand {
         Stand copia = new Stand(this.id, this.precio);
         List<Publisher> copias = new ArrayList<>();
         for (Publisher editorial : this.editoriales) {
-            copias.add(editorial.copiar());
+            Publisher copiaEditorial = new Publisher(editorial.getNit(), editorial.getNombre(), editorial.getDireccion(), null);
+            if (editorial.getGerente() != null) {
+                Manager gerente = editorial.getGerente();
+                copiaEditorial.setGerente(new Manager(gerente.getId(), gerente.getNombres(), gerente.getApellidos()));
+            }
+            copiaEditorial.setStands(new ArrayList<Stand>());
+            copiaEditorial.setLibros(new ArrayList<Book>());
+            copias.add(copiaEditorial);
         }
         copia.setEditoriales(copias);
         return copia;
