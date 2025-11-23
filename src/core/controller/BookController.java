@@ -33,20 +33,33 @@ public class BookController {
     }
 
     public Response<List<String>> agregarAutorALaLista(List<String> actuales, String autorTexto) {
-        if (autorTexto == null || autorTexto.isEmpty()) {
+        String autorLimpio = limpiarTexto(autorTexto);
+        if (autorLimpio.isEmpty()) {
             return new Response<>(StatusCode.ERROR_VALIDACION, "Debes seleccionar un autor para agregar.");
         }
-        List<String> nuevaLista = new ArrayList<>(actuales);
-        if (nuevaLista.contains(autorTexto)) {
+        List<String> nuevaLista = new ArrayList<>();
+        for (String autorGuardado : actuales) {
+            String guardadoLimpio = limpiarTexto(autorGuardado);
+            if (!nuevaLista.contains(guardadoLimpio)) {
+                nuevaLista.add(guardadoLimpio);
+            }
+        }
+        if (nuevaLista.contains(autorLimpio)) {
             return new Response<>(StatusCode.ERROR_DUPLICADO, "Ese autor ya está en la lista.", nuevaLista);
         }
-        nuevaLista.add(autorTexto);
+        nuevaLista.add(autorLimpio);
         return new Response<>(StatusCode.SUCCESS, "Autor agregado a la lista.", nuevaLista);
     }
 
     public Response<List<String>> eliminarAutorDeLaLista(List<String> actuales, String autorTexto) {
-        List<String> nuevaLista = new ArrayList<>(actuales);
-        nuevaLista.remove(autorTexto);
+        String autorLimpio = limpiarTexto(autorTexto);
+        List<String> nuevaLista = new ArrayList<>();
+        for (String autorGuardado : actuales) {
+            String guardadoLimpio = limpiarTexto(autorGuardado);
+            if (!guardadoLimpio.equals(autorLimpio)) {
+                nuevaLista.add(guardadoLimpio);
+            }
+        }
         return new Response<>(StatusCode.SUCCESS, "Autor removido.", nuevaLista);
     }
 
@@ -101,6 +114,17 @@ public class BookController {
 
     private double convertirValor(String valorTexto) {
         return Double.parseDouble(valorTexto);
+    }
+
+    private boolean generoValido(String genero) {
+        return genero != null && !genero.isEmpty() && !genero.startsWith("Seleccione");
+    }
+
+    private String limpiarTexto(String texto) {
+        if (texto == null) {
+            return "";
+        }
+        return texto.trim();
     }
 
     private List<Author> convertirAutores(List<String> autoresTexto) {
@@ -160,7 +184,10 @@ public class BookController {
         if (validacionAutores.getCodigo() != StatusCode.SUCCESS) {
             return new Response<>(validacionAutores.getCodigo(), validacionAutores.getMensaje());
         }
-        if (titulo == null || titulo.isEmpty() || genero == null || genero.isEmpty() || formato == null || formato.isEmpty()
+        if (!generoValido(genero)) {
+            return new Response<>(StatusCode.ERROR_VALIDACION, "Debes seleccionar un género para el libro.");
+        }
+        if (titulo == null || titulo.isEmpty() || formato == null || formato.isEmpty()
                 || valorTexto == null || valorTexto.isEmpty() || paginasTexto == null || paginasTexto.isEmpty() || copiasTexto == null || copiasTexto.isEmpty()) {
             return new Response<>(StatusCode.ERROR_VALIDACION, "Todos los campos del libro impreso son obligatorios.");
         }
@@ -201,7 +228,10 @@ public class BookController {
         if (validacionAutores.getCodigo() != StatusCode.SUCCESS) {
             return new Response<>(validacionAutores.getCodigo(), validacionAutores.getMensaje());
         }
-        if (titulo == null || titulo.isEmpty() || genero == null || genero.isEmpty() || formato == null || formato.isEmpty()
+        if (!generoValido(genero)) {
+            return new Response<>(StatusCode.ERROR_VALIDACION, "Debes seleccionar un género para el libro.");
+        }
+        if (titulo == null || titulo.isEmpty() || formato == null || formato.isEmpty()
                 || valorTexto == null || valorTexto.isEmpty()) {
             return new Response<>(StatusCode.ERROR_VALIDACION, "Todos los campos del libro digital son obligatorios.");
         }
@@ -231,7 +261,10 @@ public class BookController {
         if (validacionAutores.getCodigo() != StatusCode.SUCCESS) {
             return new Response<>(validacionAutores.getCodigo(), validacionAutores.getMensaje());
         }
-        if (titulo == null || titulo.isEmpty() || genero == null || genero.isEmpty() || formato == null || formato.isEmpty()
+        if (!generoValido(genero)) {
+            return new Response<>(StatusCode.ERROR_VALIDACION, "Debes seleccionar un género para el libro.");
+        }
+        if (titulo == null || titulo.isEmpty() || formato == null || formato.isEmpty()
                 || valorTexto == null || valorTexto.isEmpty() || duracionTexto == null || duracionTexto.isEmpty() || idNarradorTexto == null || idNarradorTexto.isEmpty()) {
             return new Response<>(StatusCode.ERROR_VALIDACION, "Todos los campos del audiolibro son obligatorios.");
         }
@@ -278,15 +311,21 @@ public class BookController {
     private void registrarRelaciones(Book libro, List<Author> autores, Publisher editorial, Narrator narrador) {
         for (Author autor : autores) {
             List<Book> librosAutor = autor.getLibros();
-            librosAutor.add(libro);
+            if (!librosAutor.contains(libro)) {
+                librosAutor.add(libro);
+            }
             autor.setLibros(librosAutor);
         }
         List<Book> librosEditorial = editorial.getLibros();
-        librosEditorial.add(libro);
+        if (!librosEditorial.contains(libro)) {
+            librosEditorial.add(libro);
+        }
         editorial.setLibros(librosEditorial);
         if (narrador != null) {
             List<Book> librosNarrador = narrador.getAudiolibros();
-            librosNarrador.add(libro);
+            if (!librosNarrador.contains(libro)) {
+                librosNarrador.add(libro);
+            }
             narrador.setAudiolibros(librosNarrador);
         }
     }
@@ -305,18 +344,21 @@ public class BookController {
             return new Response<>(StatusCode.ERROR_NO_ENCONTRADO, "El autor no existe.");
         }
         List<Book> copias = new ArrayList<>();
-        for (Book libro : autor.getLibros()) {
+        List<Book> encontrados = bookRepository.buscarPorAutor(autor);
+        for (Book libro : encontrados) {
             copias.add(libro.copiar());
         }
         return new Response<>(StatusCode.SUCCESS, "Libros del autor listados.", copias);
     }
 
     public Response<List<Book>> obtenerLibrosPorFormato(String formato) {
+        if (formato == null || formato.isEmpty() || formato.startsWith("Seleccione")) {
+            return new Response<>(StatusCode.ERROR_VALIDACION, "Debes escoger un formato válido.");
+        }
         List<Book> copias = new ArrayList<>();
-        for (Book libro : bookRepository.obtenerOrdenados()) {
-            if (libro.getFormato().equals(formato)) {
-                copias.add(libro.copiar());
-            }
+        List<Book> encontrados = bookRepository.buscarPorFormato(formato);
+        for (Book libro : encontrados) {
+            copias.add(libro.copiar());
         }
         return new Response<>(StatusCode.SUCCESS, "Libros filtrados por formato.", copias);
     }

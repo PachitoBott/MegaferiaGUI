@@ -77,6 +77,9 @@ public class CompraController {
                 if (stand == null) {
                     return new Response<>(StatusCode.ERROR_NO_ENCONTRADO, "El stand con ID " + id + " no existe.");
                 }
+                if (stand.getEditoriales() != null && !stand.getEditoriales().isEmpty()) {
+                    return new Response<>(StatusCode.ERROR_VALIDACION, "El stand con ID " + id + " ya fue comprado antes.");
+                }
                 stands.add(stand);
             } catch (NumberFormatException e) {
                 return new Response<>(StatusCode.ERROR_VALIDACION, "Los IDs de stands deben ser numéricos.");

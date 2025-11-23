@@ -3,6 +3,7 @@ package core.controller;
 import core.model.Author;
 import core.model.Manager;
 import core.model.Narrator;
+import core.model.Person;
 import core.repository.PersonRepository;
 import core.controller.util.Response;
 import core.controller.util.StatusCode;
@@ -119,5 +120,13 @@ public class PersonController {
 
     public Narrator buscarNarradorPorId(long id) {
         return personRepository.buscarNarrador(id);
+    }
+
+    public Response<List<Person>> obtenerPersonasOrdenadas() {
+        List<Person> copias = new ArrayList<>();
+        for (Person persona : personRepository.obtenerPersonasOrdenadasPorId()) {
+            copias.add(persona.copiar());
+        }
+        return new Response<>(StatusCode.SUCCESS, "Personas ordenadas por ID.", copias);
     }
 }
