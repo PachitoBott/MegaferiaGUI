@@ -3,6 +3,7 @@ package core.repository;
 import core.model.Author;
 import core.model.Manager;
 import core.model.Narrator;
+import core.model.Person;
 import core.observer.Observer;
 import core.observer.Subject;
 import java.util.ArrayList;
@@ -104,6 +105,15 @@ public class PersonRepository implements Subject {
         List<Narrator> copia = new ArrayList<>(narradores);
         Collections.sort(copia, Comparator.comparingLong(Narrator::getId));
         return copia;
+    }
+
+    public List<Person> obtenerPersonasOrdenadasPorId() {
+        List<Person> personas = new ArrayList<>();
+        personas.addAll(autores);
+        personas.addAll(gerentes);
+        personas.addAll(narradores);
+        Collections.sort(personas, Comparator.comparingLong(Person::getId));
+        return personas;
     }
 
     @Override

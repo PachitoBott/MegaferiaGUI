@@ -1,5 +1,6 @@
 package core.repository;
 
+import core.model.Author;
 import core.model.Book;
 import core.observer.Observer;
 import core.observer.Subject;
@@ -48,6 +49,40 @@ public class BookRepository implements Subject {
             }
         }
         return null;
+    }
+
+    public List<Book> buscarPorAutor(Author autor) {
+        List<Book> resultado = new ArrayList<>();
+        if (autor == null) {
+            return resultado;
+        }
+        for (Book libro : libros) {
+            if (libro.getAutores() == null) {
+                continue;
+            }
+            for (Author autorLibro : libro.getAutores()) {
+                if (autorLibro.getId() == autor.getId()) {
+                    resultado.add(libro);
+                    break;
+                }
+            }
+        }
+        Collections.sort(resultado, Comparator.comparing(Book::getIsbn));
+        return resultado;
+    }
+
+    public List<Book> buscarPorFormato(String formato) {
+        List<Book> resultado = new ArrayList<>();
+        if (formato == null || formato.isEmpty()) {
+            return resultado;
+        }
+        for (Book libro : libros) {
+            if (libro.getFormato() != null && libro.getFormato().equalsIgnoreCase(formato)) {
+                resultado.add(libro);
+            }
+        }
+        Collections.sort(resultado, Comparator.comparing(Book::getIsbn));
+        return resultado;
     }
 
     @Override
