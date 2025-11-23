@@ -4,8 +4,8 @@ import core.model.Author;
 import core.model.Manager;
 import core.model.Narrator;
 import core.repository.PersonRepository;
-import core.util.Response;
-import core.util.StatusCode;
+import core.controller.util.Response;
+import core.controller.util.StatusCode;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package core.util;
+package core.controller.util;
 
 /**
  * Códigos de estado simples para las respuestas.
