@@ -39,5 +39,6 @@ public class Main {
         MegaferiaFrame frame = new MegaferiaFrame(standController, personController, publisherController, bookController, compraController,
                 standRepository, personRepository, publisherRepository, bookRepository);
         frame.setVisible(true);
+        
     }
 }
