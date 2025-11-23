@@ -80,7 +80,9 @@ public class Publisher {
         }
         List<Stand> copiasStands = new ArrayList<>();
         for (Stand stand : this.stands) {
-            copiasStands.add(stand.copiar());
+            Stand standCopia = new Stand(stand.getId(), stand.getPrecio());
+            standCopia.setEditoriales(new ArrayList<Publisher>());
+            copiasStands.add(standCopia);
         }
         copia.setStands(copiasStands);
         List<Book> copiasLibros = new ArrayList<>();

@@ -4,8 +4,8 @@ import core.model.Publisher;
 import core.model.Stand;
 import core.repository.PublisherRepository;
 import core.repository.StandRepository;
-import core.util.Response;
-import core.util.StatusCode;
+import core.controller.util.Response;
+import core.controller.util.StatusCode;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -76,6 +76,9 @@ public class CompraController {
                 Stand stand = standRepository.buscarPorId(id);
                 if (stand == null) {
                     return new Response<>(StatusCode.ERROR_NO_ENCONTRADO, "El stand con ID " + id + " no existe.");
+                }
+                if (stand.getEditoriales() != null && !stand.getEditoriales().isEmpty()) {
+                    return new Response<>(StatusCode.ERROR_VALIDACION, "El stand con ID " + id + " ya fue comprado antes.");
                 }
                 stands.add(stand);
             } catch (NumberFormatException e) {

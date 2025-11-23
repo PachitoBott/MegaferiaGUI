@@ -1,6 +1,7 @@
-package core;
+package main;
 
 import com.formdev.flatlaf.FlatDarkLaf;
+import core.MegaferiaFrame;
 import core.controller.BookController;
 import core.controller.CompraController;
 import core.controller.PersonController;

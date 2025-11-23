@@ -1,4 +1,4 @@
-package core.util;
+package core.controller.util;
 
 /**
  * Respuesta genérica para las operaciones de los controladores.
